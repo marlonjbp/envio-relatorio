@@ -1,0 +1,22 @@
+{
+  "name": "relatorio_calllog_detalhado",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "moment": "^2.24.0",
+    "mysql2": "^2.1.0",
+    "nodemailer": "^6.4.2",
+    "oracledb": "^4.1.0",
+    "xlsx": "^0.15.5"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.19.1",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1"
+  }
+}
