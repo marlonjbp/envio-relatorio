@@ -101,8 +101,8 @@ const executeGuia = async () => {
         return item
       }
     }).map(item => item[2]).reduce((retorno, item, index, lista) => {
-      if (index === 1) {
-        return retorno = `${retorno} `
+      if (index === 0) {
+        return retorno = `${item} `
       }
       if (index === lista.length - 1) {
         return retorno += `${item}`

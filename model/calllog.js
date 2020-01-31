@@ -96,9 +96,9 @@ const getCdr = () => {
             BASIXBRASTEL.tbl_pbx_systemcalllog
         where
             int_domain_key = 527 and
-            vch_to = '551135881620' and
-            dtm_starttime BETWEEN TO_DATE('01-12-2019 00:00:00', 'DD-MM-YYYY HH24:MI:SS') and
-            TO_DATE('31-12-2019 23:59:59', 'DD-MM-YYYY HH24:MI:SS')
+            vch_to in ('551135881620', '551140033087') and
+            dtm_starttime BETWEEN TO_DATE('01-01-2020 00:00:00', 'DD-MM-YYYY HH24:MI:SS') and
+            TO_DATE('31-01-2020 23:59:59', 'DD-MM-YYYY HH24:MI:SS')
         order by
             dtm_starttime
         desc)
