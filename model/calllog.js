@@ -81,7 +81,7 @@ const getDetalhesDiaChamadasDiscadas = (dominio, did, dia) => {
   })
 }
 
-const getCdr = () => {
+const getCdr = ({ inicio, termino }) => {
   return new Promise(async (resolve, reject) => {
     try {
       const conn = await require('../service/oracle-cloud').getConnection()
@@ -97,8 +97,8 @@ const getCdr = () => {
         where
             int_domain_key = 527 and
             vch_to in ('551135881620', '551140033087') and
-            dtm_starttime BETWEEN TO_DATE('01-01-2020 00:00:00', 'DD-MM-YYYY HH24:MI:SS') and
-            TO_DATE('31-01-2020 23:59:59', 'DD-MM-YYYY HH24:MI:SS')
+            dtm_starttime BETWEEN TO_DATE('${inicio}', 'DD-MM-YYYY HH24:MI:SS') and
+            TO_DATE('${termino}', 'DD-MM-YYYY HH24:MI:SS')
         order by
             dtm_starttime
         desc)

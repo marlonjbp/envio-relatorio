@@ -5,12 +5,24 @@ const Moment = require('moment')
 const xlsx = require('xlsx')
 Moment.locale('pt-BR')
 
+const gerarDatas = () => {
+  const x = new Moment()
+  x.subtract(1, 'day')
+  const termino = `${x.format('DD-MM-YYYY')} 23:59:59`
+  const inicio = `01-${x.format('MM-YYYY')} 00:00:00`
+
+  return {
+    inicio,
+    termino
+  }
+}
+
 const execute = async () => {
   const planilha = []
   const totais = []
 
   try {
-    const result = await calllog.getCdr()
+    const result = await calllog.getCdr(gerarDatas())
 
     let quantidadeAtendida = 0
     let quantidadeNAtendida = 0
