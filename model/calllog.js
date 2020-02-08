@@ -169,7 +169,7 @@ const getCdrFromDomain = (domain, dids, start, end) => {
         desc)
       `)
 
-      rows = rows.map(item => item[0])
+      rows = rows.map(item => item.VCH_CALLID)
       const lista = []
 
       for (let i = 0; i < rows.length; i++) {
@@ -197,12 +197,148 @@ const getCdrFromDomain = (domain, dids, start, end) => {
             int_connectionsequence
         `)
 
-        lista[i] = result.rows
+        lista.push(result.rows)
         console.log(`${i + 1} de ${rows.length}`)
       }
 
       conn.close()
-      resolve(lista)
+
+      ///
+      const planilha = []
+      const totais = []
+      let quantidadeAtendida = 0
+      let quantidadeNAtendida = 0
+
+      for (let i = 0; i < lista.length; i++) {
+        let item = lista[i]
+
+        let originador = ''
+        let destino = ''
+        let desligadoPor = ''
+        let atendida = ''
+        let inicio = ''
+        let termino = ''
+        let ligacaoAtendida = 'SIM'
+
+        originador = item[0].VCH_FROM
+        destino = item[0].VCH_TO
+
+        if (/^sip:(.*)@(.*)$/.test(originador)) {
+          originador = originador.match(/^sip:(.*)@(.*)$/)[1]
+        }
+
+        if (/^sip:(.*)@(.*)$/.test(destino)) {
+          destino = destino.match(/^sip:(.*)@(.*)$/)[1]
+        }
+
+        inicio = item[0].INICIO
+        termino = item[0].TERMINO
+
+        item = item.map(item => {
+          if (item.STATUS === 0) {
+            item.STATUS = 'ESTABLISHED'
+          }
+          if (item.STATUS === 3) {
+            item.STATUS = 'UNANSWERED'
+          }
+          if (item.STATUS === 8) {
+            item.STATUS = 'CANCELED'
+          }
+
+          if (item.DESCONEXAO === 1) {
+            item.DESCONEXAO = 'BYE (BYE)'
+          }
+          if (item.DESCONEXAO === 2) {
+            item.DESCONEXAO = 'CANCELED (CANCELED)'
+          }
+          if (item.DESCONEXAO === 6) {
+            item.DESCONEXAO = 'TRANSFERED (BYE)'
+          }
+          if (item.DESCONEXAO === 8) {
+            item.DESCONEXAO = 'NORMAL (BYE)'
+          }
+          if (item.DESCONEXAO === 408) {
+            item.DESCONEXAO = 'TIMEOUT (CANCELED)'
+          }
+          if (item.DESCONEXAO === 481) {
+            item.DESCONEXAO = 'Call/Transaction Does Not Exist'
+          }
+          if (item.DESCONEXAO === 500) {
+            item.DESCONEXAO = 'SERVER INTERNAL ERROR (SERVER INTERNAL ERROR)'
+          }
+
+          return item
+        })
+
+        atendida = item.filter(item => {
+          if (item.STATUS === 'ESTABLISHED' && (item.VCH_TO.indexOf('usu') === 0 || item.VCH_TO.indexOf('R') === 0)) {
+            return item
+          }
+        }).map(item => item.VCH_TO).reduce((retorno, item, index, lista) => {
+          if (index === 0) {
+            return retorno = `${item} `
+          }
+          if (index === lista.length - 1) {
+            return retorno += `${item}`
+          }
+          return retorno += `${item} `
+        }, '')
+
+        if (!atendida) {
+          ligacaoAtendida = 'Não'
+        }
+
+        const desligada = item.filter(item => {
+          if (item.DESCONEXAO === 'BYE (BYE)') {
+            return item
+          }
+        })
+
+        if (desligada.length === 0) {
+          desligadoPor = 'Não identificado'
+        } else {
+          if (desligada[0].VCH_USERNAME === 'gateway@centrex.brastel.com.br') {
+            desligadoPor = 'Desligado Pelo Originador'
+          }
+        }
+
+        if (!desligadoPor) {
+          desligadoPor = desligada[desligada.length - 1].VCH_TO
+        }
+
+        if (ligacaoAtendida === 'SIM') {
+          quantidadeAtendida++
+        } else {
+          quantidadeNAtendida++
+        }
+
+        planilha.push({
+          Originador: originador,
+          Destino: destino,
+          Inicio: inicio,
+          Termino: termino,
+          DesligadoPor: desligadoPor,
+          AtendidaPor: atendida,
+          Atendida: ligacaoAtendida
+        })
+      }
+      totais.push({
+        Atendidas: quantidadeAtendida,
+        'Não Atendidas': quantidadeNAtendida
+      })
+      ///
+
+      planilha.sort((a, b) => {
+        if (a.Inicio < b.Inicio) {
+          return -1
+        }
+        if (a.Inicio > b.Inicio) {
+          return 1
+        }
+        return 0
+      })
+
+      resolve([planilha, totais])
     } catch (error) {
       reject(error)
     }

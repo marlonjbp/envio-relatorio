@@ -1,13 +1,12 @@
 const oracledb = require('oracledb')
-oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT
 
 const getConnection = () => {
   return new Promise((resolve, reject) => {
     oracledb
       .getConnection({
-        user: process.env.CLOUD_USER,
-        password: process.env.CLOUD_PASS,
-        connectString: process.env.CLOUD_CONNECT_STRING
+        user: process.env.ALPHA_USER,
+        password: process.env.ALPHA_PASS,
+        connectString: process.env.ALPHA_CONNECT_STRING
       })
       .then(connection => {
         resolve(connection)
@@ -22,9 +21,9 @@ const getPool = () => {
   return new Promise((resolve, reject) => {
     oracledb
       .createPool({
-        user: process.env.CLOUD_USER,
-        password: process.env.CLOUD_PASS,
-        connectString: process.env.CLOUD_CONNECT_STRING,
+        user: process.env.ALPHA_USER,
+        password: process.env.ALPHA_PASS,
+        connectString: process.env.ALPHA_CONNECT_STRING,
         poolMax: 40,
         poolMin: 4,
         poolIncrement: 5,
