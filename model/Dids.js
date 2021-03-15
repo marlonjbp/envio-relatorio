@@ -1,9 +1,9 @@
 const getDidsFromDomain = ({ domain }) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const conn = await require('../service/oracle-cloud').getConnection()
+    return new Promise(async (resolve, reject) => {
+        try {
+            const conn = await require("../service/oracle-cloud").getConnection()
 
-      let { rows } = await conn.execute(`
+            let { rows } = await conn.execute(`
         select
             a.vch_address as did,
             a.txt_description as descricao,
@@ -31,31 +31,31 @@ const getDidsFromDomain = ({ domain }) => {
             a.int_active = 1 and
         a.vch_address not like '55119%'
       `)
-      conn.close()
+            conn.close()
 
-      rows = rows.map(item => {
-        if (item.USUARIO) {
-          return {
-            DID: item.DID,
-            DESCRICAO: item.DESCRICAO,
-            DESTINO: `${item.USUARIO} - ${item.NOME}`
-          }
+            rows = rows.map((item) => {
+                if (item.USUARIO) {
+                    return {
+                        DID: item.DID,
+                        DESCRICAO: item.DESCRICAO,
+                        DESTINO: `${item.USUARIO} - ${item.NOME}`
+                    }
+                }
+
+                return {
+                    DID: item.DID,
+                    DESCRICAO: item.DESCRICAO,
+                    DESTINO: item.GRUPO || item.ENDERECO || "Operador Padrão"
+                }
+            })
+
+            resolve(rows)
+        } catch (error) {
+            reject(error)
         }
-
-        return {
-          DID: item.DID,
-          DESCRICAO: item.DESCRICAO,
-          DESTINO: item.GRUPO || item.ENDERECO || 'Operador Padrão'
-        }
-      })
-
-      resolve(rows)
-    } catch (error) {
-      reject(error)
-    }
-  })
+    })
 }
 
 module.exports = {
-  getDidsFromDomain
+    getDidsFromDomain
 }

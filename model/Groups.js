@@ -1,9 +1,9 @@
 const getGroupsFromDomain = ({ domain }) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const conn = await require('../service/oracle-cloud').getConnection()
+    return new Promise(async (resolve, reject) => {
+        try {
+            const conn = await require("../service/oracle-cloud").getConnection()
 
-      const { rows: grupos } = await conn.execute(`
+            const { rows: grupos } = await conn.execute(`
         select
             g.int_group_key,
             g.vch_name as nome,
@@ -27,10 +27,10 @@ const getGroupsFromDomain = ({ domain }) => {
             g.int_active = 1
       `)
 
-      for (let i = 0; i < grupos.length; i++) {
-        const item = grupos[i]
+            for (let i = 0; i < grupos.length; i++) {
+                const item = grupos[i]
 
-        const { rows: usuarios } = await conn.execute(`
+                const { rows: usuarios } = await conn.execute(`
         select
             u.vch_username as usuario,
             ug.int_priority as prioridade
@@ -44,34 +44,40 @@ const getGroupsFromDomain = ({ domain }) => {
             pu.int_user_key = u.int_user_key
         `)
 
-        if (item.TIPO === 'Toque') {
-          item.USUARIOS = usuarios.reduce((string, item, index, array) => {
-            if (array.length - 1 === index) {
-              return string += item.USUARIO
+                if (item.TIPO === "Toque") {
+                    item.USUARIOS = usuarios.reduce(
+                        (string, item, index, array) => {
+                            if (array.length - 1 === index) {
+                                return (string += item.USUARIO)
+                            }
+                            return (string += `${item.USUARIO} `)
+                        },
+                        ""
+                    )
+                } else {
+                    item.USUARIOS = usuarios.reduce(
+                        (string, item, index, array) => {
+                            if (array.length - 1 === index) {
+                                return (string += `${item.USUARIO} - ${item.PRIORIDADE}`)
+                            }
+                            return (string += `${item.USUARIO} - ${item.PRIORIDADE} `)
+                        },
+                        ""
+                    )
+                }
+
+                delete item.INT_GROUP_KEY
+                grupos[i] = item
             }
-            return string += `${item.USUARIO} `
-          }, '')
-        } else {
-          item.USUARIOS = usuarios.reduce((string, item, index, array) => {
-            if (array.length - 1 === index) {
-              return string += `${item.USUARIO} - ${item.PRIORIDADE}`
-            }
-            return string += `${item.USUARIO} - ${item.PRIORIDADE} `
-          }, '')
+            conn.close()
+
+            resolve(grupos)
+        } catch (error) {
+            reject(error)
         }
-
-        delete item.INT_GROUP_KEY
-        grupos[i] = item
-      }
-      conn.close()
-
-      resolve(grupos)
-    } catch (error) {
-      reject(error)
-    }
-  })
+    })
 }
 
 module.exports = {
-  getGroupsFromDomain
+    getGroupsFromDomain
 }

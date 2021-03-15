@@ -1,9 +1,9 @@
 const getUsersFromDomain = ({ domain }) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const conn = await require('../service/oracle-cloud').getConnection()
+    return new Promise(async (resolve, reject) => {
+        try {
+            const conn = await require("../service/oracle-cloud").getConnection()
 
-      const { rows } = await conn.execute(`
+            const { rows } = await conn.execute(`
         select
             u.int_user_key as user_key,
             u.VCH_USERNAME as usuario,
@@ -40,10 +40,10 @@ const getUsersFromDomain = ({ domain }) => {
         asc
       `)
 
-      for (let i = 0; i < rows.length; i++) {
-        const item = rows[i]
+            for (let i = 0; i < rows.length; i++) {
+                const item = rows[i]
 
-        const retorno = await conn.execute(`
+                const retorno = await conn.execute(`
           select
               TO_CHAR(dtm_sessionlastuse,'DD-MM-YYYY HH24:MI:SS') as online_ultimo
           from
@@ -60,31 +60,31 @@ const getUsersFromDomain = ({ domain }) => {
               line_number = 1
         `)
 
-        if (retorno.rows[0]) {
-          item.ULTIMA_SESSAO = retorno.rows[0].ONLINE_ULTIMO
-        } else {
-          item.ULTIMA_SESSAO = ''
+                if (retorno.rows[0]) {
+                    item.ULTIMA_SESSAO = retorno.rows[0].ONLINE_ULTIMO
+                } else {
+                    item.ULTIMA_SESSAO = ""
+                }
+
+                delete item.USER_KEY
+                rows[i] = item
+            }
+
+            conn.close()
+
+            resolve(rows)
+        } catch (error) {
+            reject(error)
         }
-
-        delete item.USER_KEY
-        rows[i] = item
-      }
-
-      conn.close()
-
-      resolve(rows)
-    } catch (error) {
-      reject(error)
-    }
-  })
+    })
 }
 
 const getTerminaisFromDomain = ({ domain }) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const conn = await require('../service/oracle-cloud').getConnection()
+    return new Promise(async (resolve, reject) => {
+        try {
+            const conn = await require("../service/oracle-cloud").getConnection()
 
-      const { rows } = await conn.execute(`
+            const { rows } = await conn.execute(`
         select
             u.int_user_key as user_key,
             u.vch_username as terminal,
@@ -111,10 +111,10 @@ const getTerminaisFromDomain = ({ domain }) => {
             u.vch_username
       `)
 
-      for (let i = 0; i < rows.length; i++) {
-        const item = rows[i]
+            for (let i = 0; i < rows.length; i++) {
+                const item = rows[i]
 
-        const retorno = await conn.execute(`
+                const retorno = await conn.execute(`
           select
               TO_CHAR(dtm_sessionlastuse,'DD-MM-YYYY HH24:MI:SS') as online_ultimo
           from
@@ -131,26 +131,26 @@ const getTerminaisFromDomain = ({ domain }) => {
               line_number = 1
         `)
 
-        if (retorno.rows[0]) {
-          item.ULTIMA_SESSAO = retorno.rows[0].ONLINE_ULTIMO
-        } else {
-          item.ULTIMA_SESSAO = ''
+                if (retorno.rows[0]) {
+                    item.ULTIMA_SESSAO = retorno.rows[0].ONLINE_ULTIMO
+                } else {
+                    item.ULTIMA_SESSAO = ""
+                }
+
+                delete item.USER_KEY
+                rows[i] = item
+            }
+
+            conn.close()
+
+            resolve(rows)
+        } catch (error) {
+            reject(error)
         }
-
-        delete item.USER_KEY
-        rows[i] = item
-      }
-
-      conn.close()
-
-      resolve(rows)
-    } catch (error) {
-      reject(error)
-    }
-  })
+    })
 }
 
 module.exports = {
-  getUsersFromDomain,
-  getTerminaisFromDomain
+    getUsersFromDomain,
+    getTerminaisFromDomain
 }

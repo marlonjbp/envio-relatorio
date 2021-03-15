@@ -4,18 +4,10 @@ const xlsx = require("xlsx")
 
 const executar = async () => {
     const result = await calllog.getCdrFromDomain(
-        "chinaclimacao.brastel.com.br",
-        [
-            "551132030350",
-            "551133413111",
-            "551135800080",
-            "551135881707",
-            "551150628676",
-            "551155731400",
-            "551155753589"
-        ],
-        "07-02-2020 00:00:00",
-        "07-02-2020 23:59:59"
+        "crtsp.cloudcom.com.br",
+        ["551135801000"],
+        "01-03-2020 00:00:00",
+        "31-03-2020 23:59:59"
     )
 
     const ws1 = xlsx.utils.json_to_sheet(result[0])
@@ -25,7 +17,7 @@ const executar = async () => {
     xlsx.utils.book_append_sheet(wb, ws2, "Totais")
     xlsx.utils.book_append_sheet(wb, ws1, "Chamadas")
 
-    xlsx.writeFile(wb, "./relatorio-china-aclimação.xlsx")
+    xlsx.writeFile(wb, "./relatorio-crtsp.xlsx")
 }
 
 executar()

@@ -15,6 +15,9 @@ module.exports = {
     ecmaVersion: 2018
   },
   rules: {
+    "indent": ["error", 4],
+    quotes: ["error", "double"],
+    semi: ["error", "never"],
     "no-async-promise-executor": "off",
     'no-return-assign': 'off'
   }
